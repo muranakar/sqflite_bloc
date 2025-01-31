@@ -5,11 +5,23 @@ import '../model/todo.dart';
 class HomePage extends StatelessWidget {
   final TodoBloc todoBloc = TodoBloc();
   final TextEditingController _textFieldController = TextEditingController();
+  final TextEditingController _todoSearchDescriptionFormController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Todo App')),
+      appBar: AppBar(
+        title: Text('Todo App'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              _showTodoSearchSheet(context);
+            },
+          ),
+        ],
+      ),
       body: StreamBuilder<List<Todo>>(
         stream: todoBloc.todos,
         builder: (context, snapshot) {
@@ -81,6 +93,49 @@ class HomePage extends StatelessWidget {
               },
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showTodoSearchSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: _todoSearchDescriptionFormController,
+                decoration: const InputDecoration(
+                  labelText: 'Search Todos',
+                  hintText: 'Enter description',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 5, top: 15),
+                child: CircleAvatar(
+                  backgroundColor: Colors.indigoAccent,
+                  radius: 18,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      size: 22,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      todoBloc.getTodos(
+                        query: _todoSearchDescriptionFormController.value.text,
+                      );
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
